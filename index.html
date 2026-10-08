@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Conferência de Produtos | Lojas 2001</title>
+
+    <!-- SheetJS -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+    <!-- Fontes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap"
+        rel="stylesheet"
+    >
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+
+    <!-- =========================================================
+         TOPO
+    ========================================================= -->
+
+    <header class="topbar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                <img src="assets/logo.svg" alt="Lojas 2001">
+            </div>
+
+            <div class="logo-text">
+            </div>
+
+            <div class="logo-divider"></div>
+
+            <span class="logo-section">
+                Conferência de Produtos
+            </span>
+
+        </div>
+
+        <div class="top-actions">
+
+            <button
+                class="btn"
+                id="clearBtn"
+                type="button"
+            >
+                Limpar tudo
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <main class="container">
+
+        <!-- =====================================================
+             IMPORTAÇÃO
+        ====================================================== -->
+
+        <section class="hero">
+
+            <h1>
+                Pré-visualização de produtos
+            </h1>
+
+            <p>
+                Importe a planilha e selecione a pasta de imagens
+                dos produtos para conferir os cadastros antes da publicação.
+            </p>
+
+
+            <div class="imports">
+
+                <!-- PLANILHA -->
+
+                <div
+                    class="drop"
+                    id="dropSheet"
+                >
+
+                    <div>
+
+                        <strong>
+                            📄 Planilha de produtos
+                        </strong>
+
+                        <small id="sheetName">
+                            Nenhuma planilha selecionada
+                        </small>
+
+                    </div>
+
+                    <label
+                        class="file-label"
+                        for="sheetInput"
+                    >
+                        Selecionar planilha
+                    </label>
+
+                    <input
+                        id="sheetInput"
+                        type="file"
+                        accept=".xlsx,.xls,.csv"
+                    >
+
+                </div>
+
+
+                <!-- PASTA DE IMAGENS -->
+
+                <div
+                    class="drop"
+                    id="dropFolder"
+                >
+
+                    <div>
+
+                        <strong>
+                            🖼️ Pasta de imagens
+                        </strong>
+
+                        <small id="folderName">
+                            Nenhuma pasta selecionada
+                        </small>
+
+                    </div>
+
+                    <label
+                        class="file-label"
+                        for="folderInput"
+                    >
+                        Selecionar pasta
+                    </label>
+
+                    <input
+                        id="folderInput"
+                        type="file"
+                        webkitdirectory
+                        directory
+                        multiple
+                        accept="image/*"
+                    >
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =====================================================
+             CATÁLOGO
+        ====================================================== -->
+
+        <section
+            id="catalog"
+            style="display:none"
+        >
+
+            <div class="toolbar">
+
+                <div class="search">
+
+                    <input
+                        id="search"
+                        type="text"
+                        placeholder="Pesquisar por nome, descrição, CODPROD ou CODFAB..."
+                        autocomplete="off"
+                    >
+
+                </div>
+
+
+                <div
+                    class="stats"
+                    id="stats"
+                ></div>
+
+            </div>
+
+
+            <div
+                class="grid"
+                id="grid"
+            ></div>
+
+        </section>
+
+
+        <!-- =====================================================
+             ESTADO VAZIO
+        ====================================================== -->
+
+        <section
+            class="empty"
+            id="empty"
+        >
+
+            <h2>
+                Comece importando sua planilha
+            </h2>
+
+            <p>
+                Depois selecione as imagens dos produtos.
+                O sistema fará o vínculo automaticamente pelo CODPROD.
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================================================
+         MODAL DO PRODUTO
+    ========================================================= -->
+
+    <div
+        class="modal"
+        id="modal"
+    >
+
+        <div class="detail">
+
+            <!-- CABEÇALHO -->
+
+            <div class="detail-head">
+
+                <strong id="detailCode">
+                    Visualização do produto
+                </strong>
+
+                <div class="detail-nav">
+
+                    <button
+                        class="btn"
+                        id="backBtn"
+                        type="button"
+                    >
+                        ← Vitrine
+                    </button>
+
+                    <button
+                        class="btn"
+                        id="prevProduct"
+                        type="button"
+                    >
+                        ‹ Anterior
+                    </button>
+
+                    <button
+                        class="btn"
+                        id="nextProduct"
+                        type="button"
+                    >
+                        Próximo ›
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div class="detail-main">
+
+                <!-- =================================================
+                     GALERIA
+                ================================================== -->
+
+                <div class="gallery">
+
+                    <div class="main-image">
+
+                        <button
+                            class="navimg prev"
+                            id="prevImg"
+                            type="button"
+                            aria-label="Imagem anterior"
+                        >
+                            ‹
+                        </button>
+
+
+                        <img
+                            id="mainImg"
+                            alt=""
+                        >
+
+
+                        <div
+                            id="noImageMessage"
+                            style="
+                                display:none;
+                                color:#9aa3b1;
+                                font-size:13px;
+                                text-align:center;
+                            "
+                        >
+                            Nenhuma imagem encontrada
+                        </div>
+
+
+                        <button
+                            class="navimg next"
+                            id="nextImg"
+                            type="button"
+                            aria-label="Próxima imagem"
+                        >
+                            ›
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        class="thumbs"
+                        id="thumbs"
+                    ></div>
+
+                </div>
+
+
+                <!-- =================================================
+                     DETALHES
+                ================================================== -->
+
+                <div class="details">
+
+                    <h2 id="detailTitle"></h2>
+
+
+                    <div
+                        class="detail-desc"
+                        id="detailDesc"
+                    ></div>
+
+
+                    <!-- DADOS TÉCNICOS -->
+
+                    <div class="section">
+
+                        <h3>
+                            Dados técnicos
+                        </h3>
+
+                        <pre id="detailData"></pre>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         INFORMAÇÕES TÉCNICAS
+
+                         FICARÁ ASSIM:
+
+                         Marca: Tramontina
+                         Referência: 1234
+                         Material: Aço inox
+
+                         UMA LINHA ABAIXO DA OUTRA.
+                    ================================================== -->
+
+                    <div class="section">
+
+                        <h3>
+                            Informações técnicas
+                        </h3>
+
+                        <div
+                            id="detailInfo"
+                            class="tech-list"
+                        ></div>
+
+                    </div>
+
+
+                    <!-- CÓDIGOS -->
+
+                    <div class="section">
+
+                        <h3>
+                            Códigos
+                        </h3>
+
+                        <div class="meta">
+
+                            <div>
+
+                                <small>
+                                    CODPROD
+                                </small>
+
+                                <b id="detailCodprod">
+                                    —
+                                </b>
+
+                            </div>
+
+
+                            <div>
+
+                                <small>
+                                    CODFAB
+                                </small>
+
+                                <b id="detailCodfab">
+                                    —
+                                </b>
+
+                            </div>
+
+
+                            <div>
+
+                                <small>
+                                    CODAUXILIAR
+                                </small>
+
+                                <b id="detailCodauxiliar">
+                                    —
+                                </b>
+
+                            </div>
+
+
+                            <div>
+
+                                <small>
+                                    Imagens encontradas
+                                </small>
+
+                                <b id="detailImages">
+                                    0
+                                </b>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         ZOOM
+    ========================================================= -->
+
+    <div
+        class="zoom"
+        id="zoom"
+    >
+
+        <button
+            id="closeZoom"
+            type="button"
+            aria-label="Fechar zoom"
+        >
+            ×
+        </button>
+
+        <img
+            id="zoomImg"
+            alt=""
+        >
+
+    </div>
+    <script src="app.js"></script>
+
+</body>
+
+</html>
